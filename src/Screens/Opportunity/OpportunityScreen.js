@@ -29,7 +29,9 @@ import { getUserData } from "../../../Repository/UserData";
 import ClientCard from "./CustomerCard"
 import {TextInputMask} from 'react-native-masked-text';
 import PhoneIcon from "../../components/PhoneIcon"
-// import { Icon } from "react-native-elements";
+import colors from "../../../res/colors";
+
+
 
 export default class OpportunityScreen extends React.Component {
   constructor(props) {
@@ -80,7 +82,13 @@ export default class OpportunityScreen extends React.Component {
 
   render() {
     return (
+      
       <Container style={styles.container}>
+      {/* <StatusBar
+        translucent
+        backgroundColor="rgba(0, 0, 0, 0.24)"
+        animated
+      /> */}
         <Header style={styles.header}>
           <Left>
             <Button
@@ -126,7 +134,7 @@ export default class OpportunityScreen extends React.Component {
         
         </Content>
 
-        <PhoneIcon/>
+        <PhoneIcon phoneNumber={this.state.agentNum}/>
         
       </Container>
     );

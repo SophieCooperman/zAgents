@@ -2,12 +2,23 @@ import React, { Component } from "react";
 import { StyleSheet, View, Alert, TouchableOpacity} from "react-native";
 import colors from "../../res/colors";
 import { Icon } from "react-native-elements";
+import Communications from 'react-native-communications';
 
 export default class PhoneIcon extends Component {
 
+    constructor(props){
+        super(props);
+
+        this.state = {
+            defaultNumber: '0542117377'
+        }
+    }
+
     render() {
+        
     return (
-      <TouchableOpacity style={styles.floatingButton} onPress={()=>{Alert.alert('1')}}>
+      <TouchableOpacity style={styles.floatingButton} 
+      onPress={()=> Communications.phonecall(this.props.phoneNumber != null || this.props.phoneNumber != "" ? this.props.phoneNumber: this.state.defaultNumber, true)}>
         <Icon name="phone" size={30} color="white" />
       </TouchableOpacity>
     );

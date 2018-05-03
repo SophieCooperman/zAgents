@@ -16,7 +16,7 @@ import {
 } from "native-base";
 
 import colors from "../../../res/colors";
-import ActivatedAccount from "../components/ActivatedAccount"
+import ActivatedAccount from "../../components/ActivatedAccount"
 
 export default class CustomerCard extends Component {
   constructor(props) {

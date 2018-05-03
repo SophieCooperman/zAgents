@@ -55,7 +55,10 @@ export default class ClientScreen extends React.Component {
 
     return (
       <Container style={styles.container}>
-        
+        <StatusBar
+        backgroundColor={colors.primary}
+        barStyle="light-content"
+      />
         <Header style={styles.header}>
           <Left>
             <Button
@@ -96,7 +99,7 @@ export default class ClientScreen extends React.Component {
           </Card>
 
           <Card style={styles.card}>
-            <CardItem button bordered>
+            <CardItem button bordered onPress={()=>Alert.alert('a')}>
               <Left>
                 <Text style={styles.clickableTxt}>עדכן</Text>
                 <Right>

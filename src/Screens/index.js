@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import ClientScreen from "./ClientScreen.js";
 import SideBar from "../SideBar/SideBar.js";
-import { DrawerNavigator } from "react-navigation";
+import { DrawerNavigator, StackNavigator } from "react-navigation";
 import OpportunityScreen from "./Opportunity/OpportunityScreen";
 import HistoryScreen from "./History";
 import MyChancesScreen from "./MyChances";
 import InfoScreen from "./Info";
 
 
-const StackOpportunityNavigator = StackNavigator(
+// const StackOpportunityNavigator = StackNavigator(
 
-);
+// );
 
 
 
