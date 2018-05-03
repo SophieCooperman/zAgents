@@ -7,7 +7,8 @@ const colors = {
   white: "#fff",
   lightGray: "#efebe9",
   red: '#CC0001',
-  green: '#017c01'
+  green: '#009900',
+  onPressBackground: '#757575'
 
   // }
 };

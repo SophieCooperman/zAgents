@@ -1,149 +1,257 @@
 import React from "react";
-import { StatusBar, StyleSheet, View } from "react-native";
-import {Button, Text, Container, Card, CardItem, Body, Content,  Header, Title, Left, Icon, Right} from "native-base";
-import { Table, TableWrapper, Row, Rows, Col, Cols, Cell } from 'react-native-table-component';
+import { StatusBar, StyleSheet, View, TouchableHighlight, TouchableOpacity, Alert} from "react-native";
+import {
+  Button,
+  Text,
+  Container,
+  Card,
+  CardItem,
+  Body,
+  Content,
+  Header,
+  Title,
+  Left,
+  Right
+} from "native-base";
+import {
+  Table,
+  TableWrapper,
+  Row,
+  Rows,
+  Col,
+  Cols,
+  Cell
+} from "react-native-table-component";
+import colors from "../../res/colors";
+import CustomerCard from "./Opportunity/CustomerCard";
+import { Icon } from 'react-native-elements'
+import PhoneIcon from "../components/PhoneIcon"
+import ActivatedAccount from "../components/ActivatedAccount"
 
 
 export default class ClientScreen extends React.Component {
-
-  constructor(props){
+  constructor(props) {
     super(props);
 
     this.state = {
-      tableTitle: ['מספר לקוח', 'שם העסק', 'מספר טלפון', 'חטיבה', 'מוקצה', 'סטטוס'],
-      tableData: null
-    }
+      // tableHead: ['Head', 'Head2', 'Head3', 'Head4'],
+      // tableTitle: ['מספר לקוח', 'שם העסק', 'מספר טלפון', 'חטיבה', 'מוקצה', 'סטטוס'],
+      tableData: null,
+      dataa: [["1", "2"]]
+    };
   }
-
 
   render() {
     const { params } = this.props.navigation.state;
-    this.setState({tableData: [[params.customerData.CustomerID],
-                              [params.customerData.CustomerDetails.Name],
-                              [params.customerData.CustomerDetails.Phone],
-                              [params.customerData.CustomerDetails.BusinessUnit]
-                              [params.customerData.CustomerDetails.AssignedTo]
-                              ['blabla']]});
+
+    this.state.tableData = [
+      [params.customerData.CustomerID, "מספר לקוח"],
+      [params.customerData.CustomerDetails.Name, "שם העסק"],
+      [params.customerData.CustomerDetails.Phone, "מספר טלפון"],
+      [params.customerData.CustomerDetails.BusinessUnit, "חטיבה"],
+      [params.customerData.CustomerDetails.AssignedTo, "מוקצה"],
+      [params.customerData.CustomerDetails.Status, "סטטוס"]
+    ];
+
     return (
-      <Container style = {styles.container}>
-        <Header style = {styles.header}>
+      <Container style={styles.container}>
+        
+        <Header style={styles.header}>
           <Left>
             <Button
               transparent
-              onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+              onPress={() => this.props.navigation.navigate("DrawerOpen")}
+            >
               <Icon name="menu" />
             </Button>
           </Left>
-          <Body>
-            <Title>Zap Agents</Title>
-          </Body>
+          <Text style={styles.titleHeader}>
+            {params.customerData.CustomerID +
+              " - " +
+              params.customerData.CustomerDetails.Name}
+          </Text>
           <Right />
         </Header>
-         <Content>
-          <Card style = {styles.card}>
+        <Content>
+          <Card style={styles.card}>
             <CardItem bordered>
-                <Text style = {styles.cardTitle}>פרטי העסק</Text>
+              <Body>
+                <Text style={styles.cardTitle}>פרטי העסק</Text>
+              </Body>
             </CardItem>
-            <CardItem>
 
             <Table>
-              {/* <Row data={state.tableHead} flexArr={[1, 2, 1, 1]} style={styles.head} textStyle={styles.text}/> */}
-              <TableWrapper style={styles.wrapper}>
-                <Col data={state.tableTitle} style={styles.title} heightArr={[28,28]} textStyle={styles.text}/>
-                <Rows data={state.tableData} flexArr={[2, 1, 1]} style={styles.row} textStyle={styles.text}/>
+              <TableWrapper
+                style={styles.tableWrapper}
+                borderStyle={{ borderColor: "transparent", borderWidth: 0 }}
+              >
+                <Rows
+                  data={this.state.tableData}
+                  flexArr={[2, 1, 1]}
+                  style={styles.row}
+                  textStyle={styles.text}
+                />
               </TableWrapper>
             </Table>
-
-
-            {/* <Body>
-                <Text style = {styles.cardText}>{'מספר לקוח:' + params.customerData.CustomerID}</Text>
-                <Text style = {styles.cardText}>{'שם העסק:' + params.customerData.CustomerDetails.Name}</Text>
-              </Body> */}
-            </CardItem>
           </Card>
 
-          <Card style = {styles.card}>
-            <CardItem bordered>
-              
-                <Text style = {styles.cardTitle}>דואר אלקטרוני</Text>
-              
+          <Card style={styles.card}>
+            <CardItem button bordered>
+              <Left>
+                <Text style={styles.clickableTxt}>עדכן</Text>
+                <Right>
+                  <Text style={styles.cardTitle}>דואר אלקטרוני</Text>
+                </Right>
+              </Left>
             </CardItem>
-          
+
             <CardItem>
               <Body>
-              <Text style = {styles.cardText}>{params.customerData.PrimaryEmail}</Text>
+                <Text style={styles.cardText}>
+                  {params.customerData.PrimaryEmail}
+                </Text>
               </Body>
             </CardItem>
           </Card>
 
-           <Card style = {styles.card}>
+          <Card style={styles.card}>
             <CardItem bordered>
-                <Text style = {styles.cardTitle}>NBO</Text>
+              <Body>
+                <Text style={styles.cardTitle}>NBO</Text>
+              </Body>
             </CardItem>
-          
+
             <CardItem>
               <Body>
-              <Text style = {styles.cardText}>blabla@gmail.com</Text>
+                <Text style={styles.cardText}>
+                  {params.customerData.NBOsDetails.Description}
+                </Text>
               </Body>
             </CardItem>
           </Card>
 
-           <Card style = {styles.card}>
+          <Card style={styles.card}>
             <CardItem bordered>
-                <Text style = {styles.cardTitle}>SSO CRM</Text>
-            </CardItem>
-          
-            <CardItem style = {styles.card}>
               <Body>
-              <Text style = {styles.cardText}>blabla@gmail.com</Text>
+                <Text style={styles.cardTitle}>SSO CRM</Text>
               </Body>
             </CardItem>
-          </Card> 
 
-
-           <Card style = {styles.card}>
-            <CardItem bordered>
-                <Text style = {styles.cardTitle}>אפליקציה לעסקים</Text>
+            <CardItem style={styles.card}>
+              <Body>
+                <ActivatedAccount AccountCreated={params.customerData.SSO.AccountCreated} AccountActivated = {params.customerData.SSO.AccountActiveted}/>
+              </Body>
             </CardItem>
           </Card>
 
-        </Content> 
+          {params.customerData.BusinessAppDetails.Show ? (
+            <Card style={styles.card}>
+              <CardItem bordered>
+                <Body>
+                  <Text style={styles.cardTitle}>אפליקציה לעסקים</Text>
+                </Body>
+              </CardItem>
+            </Card>
+          ) : null}
+
+          <Card style={styles.card}>
+            <CardItem bordered>
+              <Body>
+                <Text style={styles.cardTitle}>דיקור עסק</Text>
+              </Body>
+            </CardItem>
+            
+          </Card>
+
+          <Card style={styles.card}>
+            <CardItem bordered>
+              <Body>
+                <Text style={styles.cardTitle}>קהלים</Text>
+              </Body>
+            </CardItem>
+            <CardItem>
+              <Text style={styles.cardText}>
+                {"הקהל מכיל לפחות " +
+                  params.customerData.Audiences[0].PotentialNumber.toString() +
+                  " גולשים"}
+              </Text>
+            </CardItem>
+          </Card>
+
+          <Card style={styles.card}>
+            <CardItem bordered button>
+              <Body>
+                <Text style={styles.cardTitle}>דווח על פגישה</Text>
+              </Body>
+            </CardItem>
+          </Card>
+
+          <Card style={styles.card}>
+            <CardItem bordered button>
+              <Body>
+                <Text style={styles.cardTitle}>דווח על מכירה</Text>
+              </Body>
+            </CardItem>
+          </Card>
+        </Content>
+
+
+        <PhoneIcon/>
+
       </Container>
     );
   }
 }
 
-
-
-
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#bcaaa4',
+    backgroundColor: colors.primary
+  },
+  titleHeader: {
+    color: "white",
+    alignSelf: "center"
   },
   container: {
-    backgroundColor: '#efebe9',
-    textAlign:'right'
+    backgroundColor: colors.lightGray,
+    textAlign: "right"
   },
   customCard: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 10
   },
   cardTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
-    writingDirection: 'rtl',
-    alignSelf: 'flex-end'
+    writingDirection: "rtl",
+    alignSelf: "flex-end"
   },
   cardText: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginBottom: 5,
-    writingDirection: 'rtl'
+    writingDirection: "rtl"
   },
-  card:{
+  card: {
     marginBottom: 10,
-    textAlign:'right'
+    textAlign: "right"
   },
-  row: {  height: 28  },
-  text: { textAlign: 'center' },
-  wrapper: { flexDirection: 'row' },
+  row: { height: 28 },
+  text: { textAlign: "right" },
+  title: { flex: 1 },
+  tableWrapper: {
+    flexDirection: "row",
+    writingDirection: "rtl",
+    justifyContent: "flex-end",
+    padding: 10,
+    margin: 10
+  },
+  table: {
+    borderColor: "#efebe9",
+    color: "#efebe9",
+    backgroundColor: "#efebe9"
+  },
+  clickableTxt: {
+    color: colors.accent
+  },
+ 
+  
 });

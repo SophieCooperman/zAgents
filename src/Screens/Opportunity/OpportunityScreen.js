@@ -6,8 +6,9 @@ import {
   View,
   TextInput,
   ScrollView,
-  TouchableOpacity 
-} from "react-native";
+  TouchableOpacity,
+  Keyboard,
+  Alert} from "react-native";
 import Colors from "../../../res/colors";
 import {
   Button,
@@ -27,6 +28,8 @@ import {
 import { getUserData } from "../../../Repository/UserData";
 import ClientCard from "./CustomerCard"
 import {TextInputMask} from 'react-native-masked-text';
+import PhoneIcon from "../../components/PhoneIcon"
+// import { Icon } from "react-native-elements";
 
 export default class OpportunityScreen extends React.Component {
   constructor(props) {
@@ -63,13 +66,15 @@ export default class OpportunityScreen extends React.Component {
       });
     })
     .catch(error =>{
+      Alert.alert('לא קיימים לקוחות עבור מספר טלפון/לקוח שהוזן')
       this.setState({agentNum: "", validAgentNum: false});
     });
   }
 
 
   getUserClients(){
-      this.fetchUserClients();
+    Keyboard.dismiss();
+    this.fetchUserClients();
   }
 
 
@@ -100,10 +105,11 @@ export default class OpportunityScreen extends React.Component {
               options={{mask:'999-999-9999'}}
               style={styles.editText}
               editable={true}
-              placeholder="Place holder text"
+              placeholder="מספר טלפון של עסק/מספר לקוח"
               underlineColorAndroid="transparent"
               onChangeText={(text)=>this.setState({agentNum:text})}
               value = {this.state.agentNum}
+              keyboardType='numeric'
             />
 
             
@@ -117,7 +123,11 @@ export default class OpportunityScreen extends React.Component {
           
           {this.state.validAgentNum ? <ScrollView>{this.state.customers != []? this.state.customers: <Text>no Data</Text> }</ScrollView> : null}
 
+        
         </Content>
+
+        <PhoneIcon/>
+        
       </Container>
     );
   }
@@ -139,7 +149,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent,
     padding: 10,
     margin: 10,
-    fontSize: 30
   },
   buttonText: {
     fontSize: 17,
