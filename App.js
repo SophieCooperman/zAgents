@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { View } from "react-native";
+import { View, StatusBar } from "react-native";
 import { Container, Content, Picker, Button, Text } from "native-base";
 import Expo from "expo";
-import HomeScreenRouter from "./src/Screens/index.js";
+import MainNavigator from "./src/Screens/index.js";
 
 export default class App extends Component {
   constructor() {
@@ -23,6 +23,8 @@ export default class App extends Component {
     if (!this.state.isReady) {
       return <Expo.AppLoading />;
     }
-    return <HomeScreenRouter />;
+    return <MainNavigator />
+
+    
   }
 }

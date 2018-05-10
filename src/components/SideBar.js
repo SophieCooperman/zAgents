@@ -31,7 +31,7 @@ export default class Sidebar extends Component {
     return (
       <Content style={{ backgroundColor: colors.white }}>
         <View style={styles.header}>
-          <Text style={styles.textHeader}>Drawer</Text>
+          {/* <Text style={styles.textHeader}>Drawer</Text> */}
           <TouchableHighlight
             style={styles.headerButton}
             underlayColor={colors.lightGray}
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: 10,
+    marginTop: 40
     
   },
   itemsStyle: {

@@ -1,5 +1,13 @@
 import React from "react";
-import { StatusBar, StyleSheet, View, TouchableHighlight, TouchableOpacity, Alert} from "react-native";
+import {
+  StatusBar,
+  StyleSheet,
+  View,
+  TouchableHighlight,
+  TouchableOpacity,
+  Alert,
+  Modal
+} from "react-native";
 import {
   Button,
   Text,
@@ -22,12 +30,13 @@ import {
   Cols,
   Cell
 } from "react-native-table-component";
-import colors from "../../res/colors";
-import CustomerCard from "./Opportunity/CustomerCard";
-import { Icon } from 'react-native-elements'
-import PhoneIcon from "../components/PhoneIcon"
-import ActivatedAccount from "../components/ActivatedAccount"
-
+import colors from "../../../res/colors";
+import CustomerCard from "../Opportunity/CustomerCard";
+import { Icon } from "react-native-elements";
+import PhoneIcon from "../../components/PhoneIcon";
+import ActivatedAccount from "../../components/ActivatedAccount";
+import EditEmailPopup from "./EditEmailPopup";
+import SSOPopup from "./SSOPopup";
 
 export default class ClientScreen extends React.Component {
   constructor(props) {
@@ -37,9 +46,29 @@ export default class ClientScreen extends React.Component {
       // tableHead: ['Head', 'Head2', 'Head3', 'Head4'],
       // tableTitle: ['מספר לקוח', 'שם העסק', 'מספר טלפון', 'חטיבה', 'מוקצה', 'סטטוס'],
       tableData: null,
-      dataa: [["1", "2"]]
+      dataa: [["1", "2"]],
+      emailModalVisibility: false,
+      ssoModalVisibility: false,
+      email: null
     };
   }
+
+  _editEmail() { this.setState({ emailModalVisibility: true });}
+
+  _updateEmail(newEmail) {
+    ///?????????????
+    this.setState({ email: newEmail });
+    this.state.email = newEmail;
+    console.log(newEmail);
+  }
+  
+  _resetConnectionData() { this.setState({ ssoModalVisibility: true });}
+
+  _resetData(){
+
+  }
+
+  
 
   render() {
     const { params } = this.props.navigation.state;
@@ -52,13 +81,10 @@ export default class ClientScreen extends React.Component {
       [params.customerData.CustomerDetails.AssignedTo, "מוקצה"],
       [params.customerData.CustomerDetails.Status, "סטטוס"]
     ];
+    this.state.email = params.customerData.PrimaryEmail;
 
     return (
       <Container style={styles.container}>
-        <StatusBar
-        backgroundColor={colors.primary}
-        barStyle="light-content"
-      />
         <Header style={styles.header}>
           <Left>
             <Button
@@ -99,7 +125,7 @@ export default class ClientScreen extends React.Component {
           </Card>
 
           <Card style={styles.card}>
-            <CardItem button bordered onPress={()=>Alert.alert('a')}>
+            <CardItem button bordered onPress={() => this._editEmail()}>
               <Left>
                 <Text style={styles.clickableTxt}>עדכן</Text>
                 <Right>
@@ -110,9 +136,7 @@ export default class ClientScreen extends React.Component {
 
             <CardItem>
               <Body>
-                <Text style={styles.cardText}>
-                  {params.customerData.PrimaryEmail}
-                </Text>
+                <Text style={styles.cardText}>{this.state.email}</Text>
               </Body>
             </CardItem>
           </Card>
@@ -134,15 +158,25 @@ export default class ClientScreen extends React.Component {
           </Card>
 
           <Card style={styles.card}>
-            <CardItem bordered>
-              <Body>
-                <Text style={styles.cardTitle}>SSO CRM</Text>
-              </Body>
+            <CardItem
+              button
+              bordered
+              onPress={() => this._resetConnectionData()}
+            >
+              <Left>
+                <Text style={styles.clickableTxt}>שיחזור פרטי התחברות</Text>
+                <Right>
+                  <Text style={styles.cardTitle}>SSO CRM</Text>
+                </Right>
+              </Left>
             </CardItem>
 
             <CardItem style={styles.card}>
               <Body>
-                <ActivatedAccount AccountCreated={params.customerData.SSO.AccountCreated} AccountActivated = {params.customerData.SSO.AccountActiveted}/>
+                <ActivatedAccount
+                  AccountCreated={params.customerData.SSO.AccountCreated}
+                  AccountActivated={params.customerData.SSO.AccountActiveted}
+                />
               </Body>
             </CardItem>
           </Card>
@@ -163,7 +197,6 @@ export default class ClientScreen extends React.Component {
                 <Text style={styles.cardTitle}>דיקור עסק</Text>
               </Body>
             </CardItem>
-            
           </Card>
 
           <Card style={styles.card}>
@@ -173,11 +206,13 @@ export default class ClientScreen extends React.Component {
               </Body>
             </CardItem>
             <CardItem>
-              <Text style={styles.cardText}>
-                {"הקהל מכיל לפחות " +
-                  params.customerData.Audiences[0].PotentialNumber.toString() +
-                  " גולשים"}
-              </Text>
+              <Body>
+                <Text style={styles.cardText}>
+                  {"הקהל מכיל לפחות " +
+                    params.customerData.Audiences[0].PotentialNumber.toString() +
+                    " גולשים"}
+                </Text>
+              </Body>
             </CardItem>
           </Card>
 
@@ -198,9 +233,25 @@ export default class ClientScreen extends React.Component {
           </Card>
         </Content>
 
+        <PhoneIcon phoneNumber={params.customerData.CustomerDetails.Phone} />
 
-        <PhoneIcon/>
+        {this.state.emailModalVisibility ? (
+          <EditEmailPopup
+            isModalVisible={this.state.emailModalVisibility}
+            existingEmail={params.customerData.PrimaryEmail}
+            client={this._updateEmail.bind(this)}
+          />
+        ) : null}
 
+
+        {this.state.emailModalVisibility ? (
+          <SSOPopup
+            isModalVisible={this.state.emailModalVisibility}
+            client={this._resetData.bind(this)}
+          />
+        ) : null}
+
+        
       </Container>
     );
   }
@@ -231,7 +282,8 @@ const styles = StyleSheet.create({
   cardText: {
     alignSelf: "flex-end",
     marginBottom: 5,
-    writingDirection: "rtl"
+    writingDirection: "rtl",
+    textAlign: "right"
   },
   card: {
     marginBottom: 10,
@@ -254,7 +306,5 @@ const styles = StyleSheet.create({
   },
   clickableTxt: {
     color: colors.accent
-  },
- 
-  
+  }
 });

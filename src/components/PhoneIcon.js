@@ -10,7 +10,7 @@ export default class PhoneIcon extends Component {
         super(props);
 
         this.state = {
-            defaultNumber: '0542117377'
+            defaultNumber: '037532222'
         }
     }
 
@@ -18,7 +18,7 @@ export default class PhoneIcon extends Component {
         
     return (
       <TouchableOpacity style={styles.floatingButton} 
-      onPress={()=> Communications.phonecall(this.props.phoneNumber != null || this.props.phoneNumber != "" ? this.props.phoneNumber: this.state.defaultNumber, true)}>
+      onPress={()=> Communications.phonecall(this.props.phoneNumber != '-1' ? this.props.phoneNumber: this.state.defaultNumber, true)}>
         <Icon name="phone" size={30} color="white" />
       </TouchableOpacity>
     );

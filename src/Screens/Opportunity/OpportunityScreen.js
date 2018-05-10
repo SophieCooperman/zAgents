@@ -8,7 +8,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Keyboard,
-  Alert} from "react-native";
+  Alert,
+  ActivityIndicator,
+  AsyncStorage
+} from "react-native";
 import Colors from "../../../res/colors";
 import {
   Button,
@@ -26,12 +29,10 @@ import {
 } from "native-base";
 
 import { getUserData } from "../../../Repository/UserData";
-import ClientCard from "./CustomerCard"
-import {TextInputMask} from 'react-native-masked-text';
-import PhoneIcon from "../../components/PhoneIcon"
+import ClientCard from "./CustomerCard";
+import { TextInputMask } from "react-native-masked-text";
+import PhoneIcon from "../../components/PhoneIcon";
 import colors from "../../../res/colors";
-
-
 
 export default class OpportunityScreen extends React.Component {
   constructor(props) {
@@ -39,61 +40,73 @@ export default class OpportunityScreen extends React.Component {
     this.state = {
       customers: [],
       rawJson: "",
-      agentNum: "",
-      validAgentNum: false
+      agentNum: null,
+      validAgentNum: false,
+      dataReady: false,
+      startedSearch: false,
+      token: null
     };
   }
 
-
-  transferToClient(customer){
-    this.props.navigation.navigate('ClientScreen', {customerData: customer});
+  transferToClient(customer) {
+    this.props.navigation.navigate("ClientScreen", { customerData: customer });
   }
 
-
-
-  fetchUserClients() {
+  async fetchUserClients() {
     const _this = this;
-
-    getUserData(this.state.agentNum).then(data => {
-      _this.setState({
-        rawJson: data,
-        customers: data.Customers.map(customer => {
-          this.state.validAgentNum = true;
-          return (
-            <TouchableOpacity  onPress={() => {this.transferToClient(customer)}}>
-              <ClientCard customerData = {customer}/>
-            </TouchableOpacity>
-          );
-        })
+    try {
+      const value = await AsyncStorage.getItem('@MySuperStore:agentToken');
+      if (value !== null){
+        this.state.token = value;
+        
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+    getUserData(this.state.agentNum, this.state.token)
+      .then(data => {
+        _this.setState({
+          rawJson: data,
+          customers: data.Customers.map(customer => {
+            this.state.validAgentNum = true;
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  this.transferToClient(customer);
+                }}
+              >
+                <ClientCard customerData={customer} />
+              </TouchableOpacity>
+            );
+          })
+        });
+      })
+      .catch(error => {
+        Alert.alert("לא קיימים לקוחות עבור מספר טלפון/לקוח שהוזן");
+        this.setState({ validAgentNum: false });
+      })
+      .then(onfulfilled => {
+        this.setState({ dataReady: true });
       });
-    })
-    .catch(error =>{
-      Alert.alert('לא קיימים לקוחות עבור מספר טלפון/לקוח שהוזן')
-      this.setState({agentNum: "", validAgentNum: false});
-    });
   }
 
-
-  getUserClients(){
+  getUserClients() {
+    this.setState({ startedSearch: true });
     Keyboard.dismiss();
     this.fetchUserClients();
   }
 
-
   render() {
     return (
-      
       <Container style={styles.container}>
-      {/* <StatusBar
-        translucent
-        backgroundColor="rgba(0, 0, 0, 0.24)"
-        animated
-      /> */}
+        {/* <StatusBar barStyle = "dark-content" hidden = {false}/> */}
+        <StatusBar backgroundColor={colors.primary} hidden = {false} barStyle="light-content"/>
         <Header style={styles.header}>
           <Left>
             <Button
               transparent
-              onPress={() => this.props.navigation.navigate("DrawerOpen")}>
+              onPress={() => this.props.navigation.navigate("DrawerOpen")}
+            >
               <Icon name="menu" />
             </Button>
           </Left>
@@ -105,37 +118,36 @@ export default class OpportunityScreen extends React.Component {
         </Header>
         <Content>
           <View style={styles.headerContent}>
-
+            {(this.state.agentNum!=null && this.state.agentNum!="" )?<Text style={styles.text}>מספר טלפון של עסק/מספר לקוח</Text> : null}
             <TextInputMask
-              ref={'inputCustomerNum'}
-              type={'custom'}
-              kind={'only-numbers'}
-              options={{mask:'999-999-9999'}}
+              ref={"inputCustomerNum"}
+              type={"custom"}
+              kind={"only-numbers"}
+              options={{ mask: "999-999-9999" }}
               style={styles.editText}
               editable={true}
               placeholder="מספר טלפון של עסק/מספר לקוח"
               underlineColorAndroid="transparent"
-              onChangeText={(text)=>this.setState({agentNum:text})}
-              value = {this.state.agentNum}
-              keyboardType='numeric'
+              onChangeText={text => this.setState({ agentNum: text})}
+              value={this.state.agentNum}
+              keyboardType="numeric"
             />
 
-            
             <Button
               block
               style={styles.buttonStyle}
-              onPress={() => this.getUserClients()}>
+              onPress={() => this.getUserClients()}
+            >
               <Text style={styles.buttonText}>חפש עסק</Text>
             </Button>
           </View>
-          
-          {this.state.validAgentNum ? <ScrollView>{this.state.customers != []? this.state.customers: <Text>no Data</Text> }</ScrollView> : null}
 
-        
+          {!this.state.dataReady && this.state.startedSearch ? (<ActivityIndicator style={styles.activityIndicator} size="large" color={colors.accent} />) : null}
+          {this.state.validAgentNum && this.state.dataReady ? (<ScrollView>{this.state.customers != [] ? (this.state.customers) : 
+          (<Text>no Data</Text>)}</ScrollView>) : null}
         </Content>
 
-        <PhoneIcon phoneNumber={this.state.agentNum}/>
-        
+        <PhoneIcon phoneNumber={this.state.agentNum} />
       </Container>
     );
   }
@@ -156,7 +168,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.accent,
     padding: 10,
-    margin: 10,
+    margin: 10
   },
   buttonText: {
     fontSize: 17,
@@ -165,7 +177,16 @@ const styles = StyleSheet.create({
   editText: {
     backgroundColor: "white",
     margin: 10,
-    padding: 10,
+    padding: 10
   },
-
+  activityIndicator: {
+    flex: 1,
+    margin: 40,
+    
+  },
+  text:{
+    color: colors.white,
+    paddingTop: 10,
+    paddingEnd: 10
+  }
 });
