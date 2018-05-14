@@ -5,14 +5,25 @@ import {
   View,
   TouchableOpacity,
   Alert,
-  TouchableHighlight
+  TouchableHighlight,
+  AsyncStorage
 } from "react-native";
 import { Content, Card } from "native-base";
 import colors from "../../res/colors";
 
 export default class Sidebar extends Component {
+  async userLogout() {
+    try {
+      await AsyncStorage.removeItem('agentToken');
+      Alert.alert('Logout Success!');
+      this.props.navigation.navigate("LoginScreen");
+    } catch (error) {
+      console.log('AsyncStorage error: ' + error.message);
+    }
+  }
+
   toggleStatus() {
-    Alert.alert("Disconnect");
+    this.userLogout();
   }
 
   createSideMenuItem(title, onPressFunc) {
