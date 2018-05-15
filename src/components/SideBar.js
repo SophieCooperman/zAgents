@@ -12,6 +12,22 @@ import { Content, Card } from "native-base";
 import colors from "../../res/colors";
 
 export default class Sidebar extends Component {
+
+  constructor(props){
+    super(props);
+
+    this.state = {
+      userName: "שם הסוכן"
+    }
+  }
+
+  componentWillMount() {
+    AsyncStorage.getItem("agentName")
+    .then(agentName => {
+      this.setState({ userName: agentName });
+    });
+  }
+
   async userLogout() {
     try {
       await AsyncStorage.removeItem('agentToken');
@@ -42,7 +58,7 @@ export default class Sidebar extends Component {
     return (
       <Content style={{ backgroundColor: colors.white }}>
         <View style={styles.header}>
-          {/* <Text style={styles.textHeader}>Drawer</Text> */}
+          <Text style={styles.userName}>{this.state.userName}</Text>
           <TouchableHighlight
             style={styles.headerButton}
             underlayColor={colors.lightGray}
@@ -67,19 +83,28 @@ module.exports = Sidebar;
 const styles = StyleSheet.create({
   header: {
     backgroundColor: colors.accent,
-    height: 100,
+    height: 130,
     alignItems: "stretch"
   },
   textHeader: {
     color: "white",
-    padding: 10
+    padding: 10,
+    fontSize: 14
   },
   headerButton: {
     padding: 10,
-    marginTop: 40
     
   },
   itemsStyle: {
     padding: 15
+  },
+  userName: {
+    color: "white",
+    paddingEnd: 15,
+    paddingStart: 15,
+    fontSize: 14,
+    marginTop: 50,
+    width: '100%',
+    textAlign: 'right'
   }
 });

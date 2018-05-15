@@ -6,7 +6,8 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   Alert,
-  Modal
+  Modal,
+  ToastAndroid
 } from "react-native";
 import {
   Button,
@@ -37,42 +38,48 @@ import PhoneIcon from "../../components/PhoneIcon";
 import ActivatedAccount from "../../components/ActivatedAccount";
 import EditEmailPopup from "./EditEmailPopup";
 import SSOPopup from "./SSOPopup";
+import BusinessPopup from "./BusinessPopup";
+import MeetingPopup from "./MeetingPopup"
+import SellPopup from "././SellPopup"
+
+
 
 export default class ClientScreen extends React.Component {
   constructor(props) {
     super(props);
-
+    this._updateEmail = this._updateEmail.bind(this);
     this.state = {
       // tableHead: ['Head', 'Head2', 'Head3', 'Head4'],
       // tableTitle: ['מספר לקוח', 'שם העסק', 'מספר טלפון', 'חטיבה', 'מוקצה', 'סטטוס'],
       tableData: null,
-      dataa: [["1", "2"]],
       emailModalVisibility: false,
       ssoModalVisibility: false,
-      email: null
+      businessVisibility: false,
+      locationVisibility: false,
+      meetingVisibility: false,
+      sellVisibility: false,
+      email: null,
+      token: null,
+      customerId: null
     };
   }
 
-  _editEmail() { this.setState({ emailModalVisibility: true });}
-
   _updateEmail(newEmail) {
-    ///?????????????
-    this.setState({ email: newEmail });
-    this.state.email = newEmail;
-    console.log(newEmail);
-  }
-  
-  _resetConnectionData() { this.setState({ ssoModalVisibility: true });}
-
-  _resetData(){
-
+    const _this = this;
+    _this.setState({ email: newEmail, emailModalVisibility: false });
+    
   }
 
-  
 
-  render() {
+  _afterClosePopup(){
+    this.state.ssoModalVisibility = false;
+    this.state.businessVisibility = false;
+    this.state.meetingVisibility = false;
+    this.state.sellVisibility = false;
+  }
+
+  componentWillMount(){
     const { params } = this.props.navigation.state;
-
     this.state.tableData = [
       [params.customerData.CustomerID, "מספר לקוח"],
       [params.customerData.CustomerDetails.Name, "שם העסק"],
@@ -82,6 +89,12 @@ export default class ClientScreen extends React.Component {
       [params.customerData.CustomerDetails.Status, "סטטוס"]
     ];
     this.state.email = params.customerData.PrimaryEmail;
+    this.state.token = params.token;
+    this.state.customerId = params.customerData.CustomerID;
+
+  }
+  render() {
+    const { params } = this.props.navigation.state;
 
     return (
       <Container style={styles.container}>
@@ -90,8 +103,8 @@ export default class ClientScreen extends React.Component {
             <Button
               transparent
               onPress={() => this.props.navigation.navigate("DrawerOpen")}
-            >
-              <Icon name="menu" />
+              style={{fontSize: 20, color: 'red'}}>
+              <Icon name="menu"  />
             </Button>
           </Left>
           <Text style={styles.titleHeader}>
@@ -125,7 +138,7 @@ export default class ClientScreen extends React.Component {
           </Card>
 
           <Card style={styles.card}>
-            <CardItem button bordered onPress={() => this._editEmail()}>
+            <CardItem button bordered onPress={() => this.setState({emailModalVisibility: true })}>
               <Left>
                 <Text style={styles.clickableTxt}>עדכן</Text>
                 <Right>
@@ -161,7 +174,7 @@ export default class ClientScreen extends React.Component {
             <CardItem
               button
               bordered
-              onPress={() => this._resetConnectionData()}
+              onPress={() => this.setState({ ssoModalVisibility: true })}
             >
               <Left>
                 <Text style={styles.clickableTxt}>שיחזור פרטי התחברות</Text>
@@ -183,19 +196,33 @@ export default class ClientScreen extends React.Component {
 
           {params.customerData.BusinessAppDetails.Show ? (
             <Card style={styles.card}>
-              <CardItem bordered>
-                <Body>
+            <CardItem
+              button
+              bordered
+              onPress={() => this.setState({ businessVisibility: true })}
+            >
+              <Left>
+                <Text style={styles.clickableTxt}>שליחת לינק להורדה</Text>
+                <Right>
                   <Text style={styles.cardTitle}>אפליקציה לעסקים</Text>
-                </Body>
-              </CardItem>
+                </Right>
+              </Left>
+            </CardItem>
             </Card>
           ) : null}
 
           <Card style={styles.card}>
-            <CardItem bordered>
-              <Body>
-                <Text style={styles.cardTitle}>דיקור עסק</Text>
-              </Body>
+          <CardItem
+              button
+              bordered
+              onPress={() => this.setState({ locationVisibility: true })}
+            >
+              <Left>
+                <Text style={styles.clickableTxt}>עדכן מיקום</Text>
+                <Right>
+                  <Text style={styles.cardTitle}>דיקור עסק</Text>
+                </Right>
+              </Left>
             </CardItem>
           </Card>
 
@@ -217,20 +244,29 @@ export default class ClientScreen extends React.Component {
           </Card>
 
           <Card style={styles.card}>
-            <CardItem bordered button>
+            <CardItem 
+              button
+              bordered
+              onPress={() => this.setState({ meetingVisibility: true })}
+            >
               <Body>
                 <Text style={styles.cardTitle}>דווח על פגישה</Text>
               </Body>
             </CardItem>
           </Card>
 
-          <Card style={styles.card}>
-            <CardItem bordered button>
+          <Card style={styles.lastCard}>
+            <CardItem 
+              button
+              bordered
+              onPress={() => this.setState({ sellVisibility: true })}>
               <Body>
                 <Text style={styles.cardTitle}>דווח על מכירה</Text>
               </Body>
             </CardItem>
           </Card>
+
+          
         </Content>
 
         <PhoneIcon phoneNumber={params.customerData.CustomerDetails.Phone} />
@@ -239,18 +275,46 @@ export default class ClientScreen extends React.Component {
           <EditEmailPopup
             isModalVisible={this.state.emailModalVisibility}
             existingEmail={params.customerData.PrimaryEmail}
-            client={this._updateEmail.bind(this)}
+            client={this._updateEmail}
+            customerId = {this.state.customerId}
+            token = {this.state.token}
           />
         ) : null}
 
-
-        {this.state.emailModalVisibility ? (
+        {this.state.ssoModalVisibility ? (
           <SSOPopup
-            isModalVisible={this.state.emailModalVisibility}
-            client={this._resetData.bind(this)}
+            isModalVisible={this.state.ssoModalVisibility}
+            client={this._afterClosePopup.bind(this)}
           />
         ) : null}
 
+
+        {this.state.businessVisibility ? (
+          <BusinessPopup
+            isModalVisible={this.state.businessVisibility}
+            client={this._afterClosePopup.bind(this)}
+            customerId = {this.state.customerId}
+            token = {this.state.token}
+          />
+        ) : null}
+
+        {this.state.meetingVisibility ? (
+          <MeetingPopup
+            isModalVisible={this.state.meetingVisibility}
+            client={this._afterClosePopup.bind(this)}
+            customerId = {this.state.customerId}
+            token = {this.state.token}
+          />
+        ) : null}
+
+        {this.state.sellVisibility ? (
+          <SellPopup
+            isModalVisible={this.state.sellVisibility}
+            client={this._afterClosePopup.bind(this)}
+            customerId = {this.state.customerId}
+            token = {this.state.token}
+          />
+        ) : null}
         
       </Container>
     );
@@ -259,7 +323,11 @@ export default class ClientScreen extends React.Component {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: colors.primary
+    backgroundColor: colors.primary,
+    
+  },
+  icon: {
+    color: colors.white
   },
   titleHeader: {
     color: "white",
@@ -289,6 +357,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "right"
   },
+  lastCard:{
+    marginBottom: 50,
+    textAlign: "right"
+  },
   row: { height: 28 },
   text: { textAlign: "right" },
   title: { flex: 1 },
@@ -307,4 +379,7 @@ const styles = StyleSheet.create({
   clickableTxt: {
     color: colors.accent
   }
+
+
+
 });

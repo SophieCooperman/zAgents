@@ -39,7 +39,9 @@ export default class LoginScreen extends Component {
     this.state = {
       userName: "",
       password: "",
-      loadingToken: true
+      loadingToken: true,
+      searchingForUser: false,
+
     };
   }
 
@@ -60,14 +62,17 @@ export default class LoginScreen extends Component {
 
    _login() {
     const _this = this;
+    this.setState({searchingForUser: true});
 
     sendLoginDetails(this.state.userName, this.state.password).then(data => {
       if (data.access_token != undefined) {
         try {
           AsyncStorage.setItem("agentToken", data.access_token);
+          AsyncStorage.setItem("agentName", data.userName);
         } catch (error) {
           console.error('AsyncStorage error: ' + error.message);
         }
+        this.setState({searchingForUser: false});
         this.props.navigation.navigate("Main");
       }
       _this.setState({
@@ -114,6 +119,14 @@ export default class LoginScreen extends Component {
               <Text style={styles.buttonText}> התחבר </Text>
             </Button>
           </View>
+
+          {this.state.searchingForUser ? (
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              size="large"
+              color={Colors.accent}
+            />
+          ) : null}
         </Content>
       </Container>
     );
@@ -170,12 +183,12 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     color: Colors.accent,
-    textAlign: "right"
+    textAlign: "right",
+    fontSize: 16
+
   },
   activityIndicator: {
     flex: 1,
-    margin: 40,
-    width: '100%',
-    height: '100%'
+    margin: 40
   },
 });

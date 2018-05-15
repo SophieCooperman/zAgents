@@ -37,6 +37,7 @@ import colors from "../../../res/colors";
 export default class OpportunityScreen extends React.Component {
   constructor(props) {
     super(props);
+    
     this.state = {
       customers: [],
       rawJson: "",
@@ -49,7 +50,7 @@ export default class OpportunityScreen extends React.Component {
   }
 
   transferToClient(customer) {
-    this.props.navigation.navigate("ClientScreen", { customerData: customer });
+    this.props.navigation.navigate("ClientScreen", { customerData: customer, token: this.state.token });
   }
 
   componentWillMount() {
@@ -197,7 +198,8 @@ const styles = StyleSheet.create({
   editText: {
     backgroundColor: "white",
     margin: 10,
-    padding: 10
+    padding: 10,
+    fontSize: 14
   },
   activityIndicator: {
     flex: 1,

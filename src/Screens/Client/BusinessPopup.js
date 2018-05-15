@@ -8,7 +8,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Keyboard,
-  Alert
+  Alert,
+  ToastAndroid,
+  ActivityIndicator
 } from "react-native";
 import Modal from "react-native-modal";
 import Colors from "../../../res/colors";
@@ -29,14 +31,16 @@ import {
 
 import colors from "../../../res/colors";
 import { Dialog } from "react-native-simple-dialogs";
+import {sendBusinessAppLink} from "../../../Repository/UserData"
 
-export default class SSOPopup extends React.Component {
+export default class BusinessPopup extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       isModalVisible: this.props.isModalVisible,
-      modalOpened: false
+      modalOpened: false,
+      dataLoading: false
     };
   }
 
@@ -48,41 +52,40 @@ export default class SSOPopup extends React.Component {
 
 
 
-  _resetData(){
-    this.setState({isModalVisible: false});
-    this.props.client();
+  _updateBusiness(){
+    this.setState({dataLoading: true});
+    sendBusinessAppLink(this.props.customerId, this.props.token)
+    .then(response => {
+      this.setState({dataLoading: false});
+      if(response.Success){
+        ToastAndroid.show('הפעולה התבצעה בהצלחה!', ToastAndroid.SHORT);
+      }else{
+        ToastAndroid.show('הפעולה נכשלה', ToastAndroid.SHORT);
+      }
+      this.setState({ isModalVisible: false });
+      this.props.client();
+    })
+    
   }
 
   render() {
 
     return (
-      // <View>
-      //   <Modal isVisible={this.state.isModalVisible}>
-      //     <View style={styles.popupContainer}>
-      //       <Text style={styles.titleText}>שיחזור פרטי התחברות</Text>
-      //       <Text style={styles.text}>האם ברצונך לשחזר פרטי משתמש?</Text>
-           
-
-      //       <View style={styles.popupButtons}>
-      //         <Button transparent style={styles.cancelButton} onPress={() => this._closeModal()}>
-      //           <Text> ביטול </Text>
-      //         </Button>
-      //         <Button style={styles.okButton} onPress={() => this._closeModal()}>
-      //           <Text> שחזר </Text>
-      //         </Button>
-      //       </View>
-      //     </View>
-      //   </Modal>
-      // </View>
 
       <View>
         <Dialog
           visible={this.state.isModalVisible}
           onTouchOutside={() => this.setState({isModalVisible: false})}>
           <View>
-          <Text style={styles.titleText}>שיחזור פרטי התחברות</Text>
-          <Text style={styles.text}>האם ברצונך לשחזר פרטי משתמש?</Text>
-
+          <Text style={styles.titleText}>אפליקציה לעסקים</Text>
+          <Text style={styles.text}>האם ברצונך לשלוח לינק להורדת אפליקציה?</Text>
+          {this.state.dataLoading ? (
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              size="large"
+              color={colors.accent}
+            />
+          ) : null}
             <View style={styles.popupButtons}>
               <Button
                 transparent
@@ -93,8 +96,8 @@ export default class SSOPopup extends React.Component {
 
               <Button
                 style={styles.okButton}
-                onPress={() => this._resetData()}>
-                <Text> שחזר </Text>
+                onPress={() => this._updateBusiness()}>
+                <Text> שלח </Text>
               </Button>
             </View>
           </View>
@@ -140,6 +143,9 @@ const styles = StyleSheet.create({
     padding: 10,
     marginEnd: 10,
     fontWeight: 'bold'
-  }
+  },
+  activityIndicator: {
+    margin:10
+  },
 });
 
